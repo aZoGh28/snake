@@ -66,9 +66,6 @@ int main(){
 
     int running=1;
     while(running){
-        Uint64 fin = SDL_GetPerformanceCounter();                   // compteur de performance à la fin de la boucle
-        Uint64 elapsed_ticks = fin - debut;                      // nombre de ticks écoulés depuis le début de la boucle                                            
-        Uint64 target_ticks = (Uint64)((double)freq / 60);
         SDL_Event e;
         while (SDL_PollEvent(&e)){              
             if (e.type == SDL_QUIT) running = 0;}
@@ -81,6 +78,21 @@ int main(){
             Pomme P=pommes[i];
             draw_circle(r, P.case_x*taille_case+taille_case/2, P.case_y*taille_case+taille_case/2, rayon_pomme);
         }
+        Uint64 fin = SDL_GetPerformanceCounter();                   // compteur de performance à la fin de la boucle
+        Uint64 elapsed_ticks = fin - debut;                      // nombre de ticks écoulés depuis le début de la boucle                                            
+        Uint64 target_ticks = (Uint64)((double)freq / 60);  // nombre de ticks visés pour atteindre 60 FPS
+        if (elapsed_ticks < target_ticks){                        // si le temps écoulé est inférieur au temps visé, on attend
+            Uint64 remaining = target_ticks - elapsed_ticks;      
+            Uint32 delay_ms = (Uint32)(remaining * 1000 / freq); //*1000 pour convertir en millisecondes
+            if (delay_ms > 0){       // si il y a un délai, on attend (ici c'est grossier pour éviter d'utiliser trop de CPU)
+                SDL_Delay(delay_ms);
+            }
+            while ((SDL_GetPerformanceCounter() - fin) < remaining){}  // on est plus précis là mais ça utilise du CPU
+            fin = SDL_GetPerformanceCounter();
+            elapsed_ticks = fin - debut;
+        }
+
+
         double delta = (double)elapsed_ticks/(double)(freq);       // temps écoulé en secondes
         double fps = 1.0/delta; // calcul du FPS
         printf("%f\n", fps);
