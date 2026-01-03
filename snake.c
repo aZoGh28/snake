@@ -19,9 +19,15 @@ typedef struct{
 }Pomme;
 
 typedef struct{
+    int x;
+    int y;
+}dir;
+
+typedef struct{
     int case_x;
     int case_y;
-    char dir;
+    dir d;
+    int frame;
     struct snake* next;
 }snake;
 
@@ -34,6 +40,14 @@ void draw_circle(SDL_Renderer* r, int cx, int cy, int rad){
     }
 }
 
+void update_snake(snake* s){
+    if (s->frame==10){
+        s->frame=-1;
+        s->case_x= (s->case_x+(s->d).x)%Nb_case;
+        s->case_y= (s->case_y+(s->d).y)%Nb_case;
+    }
+    s->frame++;
+}
 
 
 int main(){
@@ -60,6 +74,14 @@ int main(){
     pommes[4].case_x=7;
     pommes[4].case_y=5;
 
+    /*Initialisation du snake*/
+    snake s;
+    s.case_x=2;
+    s.case_y=4;
+    s.d.x=1;
+    s.d.y=0;
+    s.frame=5;
+
     Uint64 freq = SDL_GetPerformanceFrequency();               // fréquence du compteur de performance pour la gestion du framerate, c'est à dire le nombre de ticks par seconde
     Uint64 debut = SDL_GetPerformanceCounter();                // compteur de performance au début de la boucle, c'est à dire le nombre de ticks depuis le démarrage de SDL != 0
 
@@ -71,6 +93,9 @@ int main(){
             if (e.type == SDL_QUIT) running = 0;}
         SDL_SetRenderDrawColor(r, 0, 0, 0, 255);
         SDL_RenderClear(r);
+        
+
+        update_snake(&s);
 
         SDL_SetRenderDrawColor(r,180,30,30,255);
         /* dessine les pommes*/
@@ -78,6 +103,12 @@ int main(){
             Pomme P=pommes[i];
             draw_circle(r, P.case_x*taille_case+taille_case/2, P.case_y*taille_case+taille_case/2, rayon_pomme);
         }
+
+        /*dessine le snake*/
+        SDL_SetRenderDrawColor(r,30,180,30,255);
+        draw_circle(r, s.case_x*taille_case+taille_case/2, s.case_y*taille_case+taille_case/2, rayon_pomme);
+
+
         Uint64 fin = SDL_GetPerformanceCounter();                   // compteur de performance à la fin de la boucle
         Uint64 elapsed_ticks = fin - debut;                      // nombre de ticks écoulés depuis le début de la boucle                                            
         Uint64 target_ticks = (Uint64)((double)freq / 60);  // nombre de ticks visés pour atteindre 60 FPS
@@ -95,7 +126,7 @@ int main(){
 
         double delta = (double)elapsed_ticks/(double)(freq);       // temps écoulé en secondes
         double fps = 1.0/delta; // calcul du FPS
-        printf("%f\n", fps);
+        //printf("%f\n", fps);
 
 
         SDL_RenderPresent(r);
