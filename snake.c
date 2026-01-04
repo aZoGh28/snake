@@ -23,7 +23,9 @@ typedef struct{
     int y;
 }dir;
 
-typedef struct{
+typedef struct snake{
+    int case_prec_x;
+    int case_prec_y;
     int case_x;
     int case_y;
     dir d;
@@ -32,6 +34,21 @@ typedef struct{
 }snake;
 
 Pomme pommes[Nb_Pommes];
+
+void add_snake(snake* head){
+    snake* new = malloc(sizeof(snake));
+    new->next = NULL;
+    snake* cur = head;
+    while (cur->next != NULL){
+        cur = cur->next;
+    }
+    cur->next = new;
+    new->case_x = cur->case_x;
+    new->case_y = cur->case_y;
+    new->case_prec_x = cur->case_prec_x;
+    new->case_prec_y = cur->case_prec_y;
+}
+
 
 void draw_circle(SDL_Renderer* r, int cx, int cy, int rad){
     for (int dy =-rad; dy<=rad;dy++){
@@ -43,8 +60,21 @@ void draw_circle(SDL_Renderer* r, int cx, int cy, int rad){
 void update_snake(snake* s){
     if (s->frame==10){
         s->frame=-1;
+        s->case_prec_x=s->case_x;
+        s->case_prec_y=s->case_y;
         s->case_x= (s->case_x+(s->d).x)%Nb_case;
         s->case_y= (s->case_y+(s->d).y)%Nb_case;
+        snake* cur=s;
+    while (cur->next != NULL){
+        int tempx= cur->case_prec_x;
+        int tempy= cur->case_prec_y;
+        cur = cur->next;
+        cur->case_prec_x=cur->case_x;
+        cur->case_prec_y=cur->case_y;
+        cur->case_x=tempx;
+        cur->case_y=tempy;
+    }
+        
     }
     s->frame++;
 }
@@ -76,11 +106,18 @@ int main(){
 
     /*Initialisation du snake*/
     snake s;
+    s.case_prec_x=2;
+    s.case_prec_y=4;
     s.case_x=2;
     s.case_y=4;
     s.d.x=1;
     s.d.y=0;
     s.frame=5;
+    s.next= NULL;
+
+    add_snake(&s);
+    add_snake(&s);
+    add_snake(&s);
 
     Uint64 freq = SDL_GetPerformanceFrequency();               // fréquence du compteur de performance pour la gestion du framerate, c'est à dire le nombre de ticks par seconde
     Uint64 debut = SDL_GetPerformanceCounter();                // compteur de performance au début de la boucle, c'est à dire le nombre de ticks depuis le démarrage de SDL != 0
@@ -106,8 +143,11 @@ int main(){
 
         /*dessine le snake*/
         SDL_SetRenderDrawColor(r,30,180,30,255);
-        draw_circle(r, s.case_x*taille_case+taille_case/2, s.case_y*taille_case+taille_case/2, rayon_pomme);
-
+        snake* cur=&s;
+        while (cur != NULL){
+            draw_circle(r, cur->case_x*taille_case+taille_case/2, cur->case_y*taille_case+taille_case/2, rayon_pomme);
+            cur = cur->next;
+        }
 
         Uint64 fin = SDL_GetPerformanceCounter();                   // compteur de performance à la fin de la boucle
         Uint64 elapsed_ticks = fin - debut;                      // nombre de ticks écoulés depuis le début de la boucle                                            
