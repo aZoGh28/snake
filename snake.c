@@ -62,8 +62,8 @@ void update_snake(snake* s){
         s->frame=-1;
         s->case_prec_x=s->case_x;
         s->case_prec_y=s->case_y;
-        s->case_x= (s->case_x+(s->d).x)%Nb_case;
-        s->case_y= (s->case_y+(s->d).y)%Nb_case;
+        s->case_x= (s->case_x+(s->d).x+Nb_case)%Nb_case;
+        s->case_y= (s->case_y+(s->d).y+Nb_case)%Nb_case;
         snake* cur=s;
     while (cur->next != NULL){
         int tempx= cur->case_prec_x;
@@ -127,10 +127,20 @@ int main(){
     while(running){
         SDL_Event e;
         while (SDL_PollEvent(&e)){              
-            if (e.type == SDL_QUIT) running = 0;}
+            if (e.type == SDL_QUIT) running = 0;
+        }
         SDL_SetRenderDrawColor(r, 0, 0, 0, 255);
         SDL_RenderClear(r);
         
+
+
+        const Uint8* state = SDL_GetKeyboardState(NULL);
+
+        if (state[SDL_SCANCODE_UP] && s.d.x !=0){ s.d.x=0;s.d.y=-1;} 
+        if (state[SDL_SCANCODE_DOWN]&& s.d.x !=0){ s.d.x=0;s.d.y=1;} 
+        if (state[SDL_SCANCODE_LEFT]&& s.d.y !=0){ s.d.x=-1;s.d.y=0;}  
+        if (state[SDL_SCANCODE_RIGHT]&& s.d.y !=0){ s.d.x=1;s.d.y=0;}
+
 
         update_snake(&s);
 
