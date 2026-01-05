@@ -74,7 +74,14 @@ void update_snake(snake* s){
         cur->case_x=tempx;
         cur->case_y=tempy;
     }
-        
+    for(int i=0;i<Nb_Pommes;i++){
+        Pomme* P=&pommes[i];
+        if(s->case_x==P->case_x && s->case_y==P->case_y){
+            P->case_x= rand()% 9;
+            P->case_y= rand()% 9;
+            add_snake(s);
+            }
+        }
     }
     s->frame++;
 }
