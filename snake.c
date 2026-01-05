@@ -10,6 +10,7 @@
 #define taille_case 100
 #define rayon_pomme 45
 #define Nb_Pommes 5
+int running=1;
 
 
 typedef struct{
@@ -57,34 +58,74 @@ void draw_circle(SDL_Renderer* r, int cx, int cy, int rad){
     }
 }
 
-void update_snake(snake* s){
+void update_pomme(Pomme* P, snake* s){
+    int case_x= rand()% 9;
+    int case_y= rand()% 9;
+    int free = 1;
+    for(int i=0;i<Nb_Pommes;i++){
+        Pomme P1 = pommes[i];
+        if (case_x==P1.case_x && case_y==P1.case_y){
+            free =0;
+            update_pomme(P,s);
+            break;
+        }
+    }
+    if (free){
+        snake* cur=s;
+        while (cur->next != NULL){
+            if (case_x==cur->case_x && case_y==cur->case_y){
+                free =0;
+                update_pomme(P,s);
+                break;
+            }
+        cur = cur->next;
+        }
+    }
+    if(free){
+        P->case_x=case_x;
+        P->case_y=case_y;
+    }
+}
+
+void update_snake(snake* s, dir pending){
     if (s->frame==10){
         s->frame=-1;
         s->case_prec_x=s->case_x;
         s->case_prec_y=s->case_y;
+        s->d= pending;
         s->case_x= (s->case_x+(s->d).x+Nb_case)%Nb_case;
         s->case_y= (s->case_y+(s->d).y+Nb_case)%Nb_case;
         snake* cur=s;
-    while (cur->next != NULL){
-        int tempx= cur->case_prec_x;
-        int tempy= cur->case_prec_y;
-        cur = cur->next;
-        cur->case_prec_x=cur->case_x;
-        cur->case_prec_y=cur->case_y;
-        cur->case_x=tempx;
-        cur->case_y=tempy;
-    }
-    for(int i=0;i<Nb_Pommes;i++){
-        Pomme* P=&pommes[i];
-        if(s->case_x==P->case_x && s->case_y==P->case_y){
-            P->case_x= rand()% 9;
-            P->case_y= rand()% 9;
-            add_snake(s);
+        while (cur->next != NULL){
+            int tempx= cur->case_prec_x;
+            int tempy= cur->case_prec_y;
+            cur = cur->next;
+            cur->case_prec_x=cur->case_x;
+            cur->case_prec_y=cur->case_y;
+            cur->case_x=tempx;
+            cur->case_y=tempy;
+        }
+        for(int i=0;i<Nb_Pommes;i++){
+            Pomme* P=&pommes[i];
+            if(s->case_x==P->case_x && s->case_y==P->case_y){
+                update_pomme(P, s);
+                add_snake(s);
+                }
             }
+        snake* cur2=s->next;
+        int case_x=s->case_x;
+        int case_y=s->case_y;
+        while (cur2 != NULL){
+            if(cur2->case_x==case_x && cur2->case_y==case_y){
+                running=0;
+                break;
+            }
+            cur2=cur2->next;
         }
     }
     s->frame++;
 }
+
 
 
 int main(){
@@ -128,9 +169,9 @@ int main(){
 
     Uint64 freq = SDL_GetPerformanceFrequency();               // fréquence du compteur de performance pour la gestion du framerate, c'est à dire le nombre de ticks par seconde
     Uint64 debut = SDL_GetPerformanceCounter();                // compteur de performance au début de la boucle, c'est à dire le nombre de ticks depuis le démarrage de SDL != 0
+    
+    dir pending = s.d;
 
-
-    int running=1;
     while(running){
         SDL_Event e;
         while (SDL_PollEvent(&e)){              
@@ -142,14 +183,16 @@ int main(){
 
 
         const Uint8* state = SDL_GetKeyboardState(NULL);
+        
 
-        if (state[SDL_SCANCODE_UP] && s.d.x !=0){ s.d.x=0;s.d.y=-1;} 
-        if (state[SDL_SCANCODE_DOWN]&& s.d.x !=0){ s.d.x=0;s.d.y=1;} 
-        if (state[SDL_SCANCODE_LEFT]&& s.d.y !=0){ s.d.x=-1;s.d.y=0;}  
-        if (state[SDL_SCANCODE_RIGHT]&& s.d.y !=0){ s.d.x=1;s.d.y=0;}
+        if (state[SDL_SCANCODE_UP] && s.d.x != 0)        {pending = (dir){0,-1}; printf("haut");}
+        else if (state[SDL_SCANCODE_DOWN] && s.d.x != 0) {pending = (dir){0, 1}; printf("bas");}
+        else if (state[SDL_SCANCODE_LEFT] && s.d.y != 0) {pending = (dir){-1,0}; printf("gauche");}
+        else if (state[SDL_SCANCODE_RIGHT] && s.d.y != 0){pending = (dir){ 1,0}; printf("droite");
+}
 
 
-        update_snake(&s);
+        update_snake(&s, pending);
 
         SDL_SetRenderDrawColor(r,180,30,30,255);
         /* dessine les pommes*/
