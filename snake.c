@@ -58,6 +58,53 @@ void draw_circle(SDL_Renderer* r, int cx, int cy, int rad){
     }
 }
 
+void draw_head(SDL_Renderer* r, snake s){
+    dir d1 = s.d;
+    int cx = s.case_x * taille_case + taille_case / 2;
+    int cy = s.case_y * taille_case + taille_case / 2;
+
+    int eye_offset = (int)(0.5 * 0.7 * taille_case);
+    int eye_r = 20;
+    int eye_white = 17;
+    int pupil = 4;
+
+    SDL_SetRenderDrawColor(r, 30,180,30,255);
+    draw_circle(r, cx, cy, rayon_pomme);
+
+    int ex1, ey1, ex2, ey2;
+
+    /* → DROITE */
+    if (d1.x == 1 && d1.y == 0){
+        ex1 = cx + eye_offset; ey1 = cy + eye_offset;
+        ex2 = cx + eye_offset; ey2 = cy - eye_offset;
+    }
+    /* ← GAUCHE */
+    else if (d1.x == -1 && d1.y == 0){
+        ex1 = cx - eye_offset; ey1 = cy + eye_offset;
+        ex2 = cx - eye_offset; ey2 = cy - eye_offset;
+    }
+    /* ↑ HAUT */
+    else if (d1.x == 0 && d1.y == -1){
+        ex1 = cx + eye_offset; ey1 = cy - eye_offset;
+        ex2 = cx - eye_offset; ey2 = cy - eye_offset;
+    }
+    /* ↓ BAS */
+    else { // d1.x == 0 && d1.y == 1
+        ex1 = cx + eye_offset; ey1 = cy + eye_offset;
+        ex2 = cx - eye_offset; ey2 = cy + eye_offset;
+    }
+
+    /* yeux */
+    SDL_SetRenderDrawColor(r, 255,255,255,255);
+    draw_circle(r, ex1, ey1, eye_white);
+    draw_circle(r, ex2, ey2, eye_white);
+
+    SDL_SetRenderDrawColor(r, 0,0,0,255);
+    draw_circle(r, ex1, ey1, pupil);
+    draw_circle(r, ex2, ey2, pupil);
+}
+
+
 void update_pomme(Pomme* P, snake* s){
     int case_x= rand()% 9;
     int case_y= rand()% 9;
@@ -202,8 +249,10 @@ int main(){
         }
 
         /*dessine le snake*/
+        
+        snake* cur=s.next;
+        draw_head(r,s);
         SDL_SetRenderDrawColor(r,30,180,30,255);
-        snake* cur=&s;
         while (cur != NULL){
             draw_circle(r, cur->case_x*taille_case+taille_case/2, cur->case_y*taille_case+taille_case/2, rayon_pomme);
             cur = cur->next;
