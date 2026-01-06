@@ -30,6 +30,7 @@ typedef struct snake{
     int case_x;
     int case_y;
     dir d;
+    dir d_prec;
     int frame;
     struct snake* next;
 }snake;
@@ -48,6 +49,8 @@ void add_snake(snake* head){
     new->case_y = cur->case_y;
     new->case_prec_x = cur->case_prec_x;
     new->case_prec_y = cur->case_prec_y;
+    new->d=cur->d;
+    new->d_prec=cur->d_prec;
 }
 
 
@@ -58,10 +61,14 @@ void draw_circle(SDL_Renderer* r, int cx, int cy, int rad){
     }
 }
 
+
+
+/*Compléter par chatGPT (j'avais fais que les yeux quand le snake se dirige vers la droite)*/
 void draw_head(SDL_Renderer* r, snake s){
     dir d1 = s.d;
-    int cx = s.case_x * taille_case + taille_case / 2;
-    int cy = s.case_y * taille_case + taille_case / 2;
+    int frame = s.frame;
+    int cx = (s.case_prec_x + d1.x*(frame/10.0)) * taille_case + taille_case / 2;
+    int cy = (s.case_prec_y + d1.y*(frame/10.0)) * taille_case + taille_case / 2;
 
     int eye_offset = (int)(0.5 * 0.7 * taille_case);
     int eye_r = 20;
@@ -135,8 +142,9 @@ void update_pomme(Pomme* P, snake* s){
 }
 
 void update_snake(snake* s, dir pending){
+    s->frame++;
     if (s->frame==10){
-        s->frame=-1;
+        s->frame=0;
         s->case_prec_x=s->case_x;
         s->case_prec_y=s->case_y;
         s->d= pending;
@@ -149,6 +157,22 @@ void update_snake(snake* s, dir pending){
             cur = cur->next;
             cur->case_prec_x=cur->case_x;
             cur->case_prec_y=cur->case_y;
+            int dx =tempx-cur->case_x;
+            if (dx>1){
+                cur->d.x=-1;
+            }else if(dx<-1){
+                cur->d.x=1;
+            }else{
+                cur->d.x =dx;
+            }
+            int dy =tempy-cur->case_y;
+            if (dy>1){
+                cur->d.y=-1;
+            }else if(dy<-1){
+                cur->d.y=1;
+            }else{
+                cur->d.y =dy;
+            }    
             cur->case_x=tempx;
             cur->case_y=tempy;
         }
@@ -170,7 +194,6 @@ void update_snake(snake* s, dir pending){
             cur2=cur2->next;
         }
     }
-    s->frame++;
 }
 
 
@@ -207,6 +230,8 @@ int main(){
     s.case_y=4;
     s.d.x=1;
     s.d.y=0;
+    s.d_prec.x=1;
+    s.d_prec.y=0;
     s.frame=5;
     s.next= NULL;
 
@@ -251,10 +276,11 @@ int main(){
         /*dessine le snake*/
         
         snake* cur=s.next;
+        int frame =s.frame;
         draw_head(r,s);
         SDL_SetRenderDrawColor(r,30,180,30,255);
         while (cur != NULL){
-            draw_circle(r, cur->case_x*taille_case+taille_case/2, cur->case_y*taille_case+taille_case/2, rayon_pomme);
+            draw_circle(r, ((cur->case_prec_x+cur->d.x*(frame/10.0))*taille_case+taille_case/2), ((cur->case_prec_y+cur->d.y*(frame/10.0))*taille_case+taille_case/2), rayon_pomme);
             cur = cur->next;
         }
 
