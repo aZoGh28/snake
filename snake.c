@@ -61,6 +61,15 @@ void draw_circle(SDL_Renderer* r, int cx, int cy, int rad){
     }
 }
 
+void free_snake(snake* head){
+    snake* cur = head->next;   
+    while (cur){
+        snake* next = cur->next;
+        free(cur);
+        cur = next;
+    }
+    head->next = NULL;
+}
 
 
 /*Compléter par chatGPT (j'avais fais que les yeux quand le snake se dirige vers la droite)*/
@@ -310,6 +319,7 @@ int main(){
     }
 
     SDL_DestroyWindow(w);
+    free_snake(&s);
 
 return 0;
 }
