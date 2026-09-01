@@ -18,9 +18,12 @@ avec SDL2 (boucle de jeu, gestion du clavier, limiteur de FPS).
 - Code final nettoyé (pas de fuites mémoire).
 
 ### Compilation & exécution
-Nécessite **SDL2** installé.
+Nécessite **SDL2** installé, ainsi que les en-têtes de **SDL2_ttf** (incluses
+dans le code mais non utilisées, elles doivent tout de même être présentes à
+la compilation) :
 
 ```bash
+sudo apt install libsdl2-dev libsdl2-ttf-dev   # Debian/Ubuntu
 gcc snake.c -o snake -lSDL2 -lm
 ./snake
 ```
@@ -47,9 +50,11 @@ SDL2 (game loop, keyboard handling, FPS limiter).
 - Cleaned-up final code (no memory leaks).
 
 ### Build & run
-Requires **SDL2** installed.
+Requires **SDL2** installed, plus the **SDL2_ttf** headers (included in the
+code but unused — they still need to be present at compile time):
 
 ```bash
+sudo apt install libsdl2-dev libsdl2-ttf-dev   # Debian/Ubuntu
 gcc snake.c -o snake -lSDL2 -lm
 ./snake
 ```
