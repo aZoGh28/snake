@@ -1,8 +1,8 @@
-# 🐍 Snake (C / SDL2)
+# Snake (C / SDL2)
 
-> 🇫🇷 Version française ci-dessous — 🇬🇧 English version below.
+> Version française ci-dessous — English version below.
 
-## 🇫🇷 Français
+## Français
 
 Jeu du **Snake** classique écrit en **C** avec la bibliothèque **SDL2**.
 
@@ -31,7 +31,7 @@ gcc snake.c -o snake -lSDL2 -lm
 
 ---
 
-## 🇬🇧 English
+## English
 
 Classic **Snake** game written in **C** with the **SDL2** library.
 
